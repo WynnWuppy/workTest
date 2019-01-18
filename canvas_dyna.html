@@ -5,7 +5,7 @@
     </head>
     <body>
         <div id="div" style="position: relative">
-        <canvas id="canvas" width="800px" height="500px"/>
+        <canvas id="canvas" width="100%" height="500px"/>
         </div>
         <script>
 var c = document.getElementById("canvas");
@@ -18,6 +18,8 @@ var pick_width = 5;
 function MAIN_addImageOnCanvas(ctx, src, posx, posy, id) {
         var imageObj = new Image();
         imageObj.src = src;
+        imageObj.width="100%";
+        imageObj.height="auto";
         imageObj.onload = function() {
             var _width = imageObj.naturalWidth;
             var _height = imageObj.naturalHeight;
