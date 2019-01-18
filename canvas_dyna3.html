@@ -76,7 +76,7 @@ function drawTooltip(x, y, msg) {
     var lastField = $("div> div:last");
     lastField.hide();
     var intId = (lastField && lastField.length && lastField.data("idx") + 1) || 1;
-    var fieldWrapper = $("<div class=\"fieldwrapper\" id=\"field" + intId + "\" style='border:1px solid #000;background-color:#fff;position:absolute;top:"+y+"px;left:"+x+"px;' />");
+    var fieldWrapper = $("<div class=\"fieldwrapper\" id=\"field" + intId + "\" style='border:1px solid #000;background-color:#ddd;position:absolute;top:"+y+"px;left:"+x+"px;' />");
     fieldWrapper.data("idx", intId);
     var span = $("<span />");
     span.html("DESC:");
