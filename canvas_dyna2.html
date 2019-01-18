@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+    </head>
+    <body>
+        <div id="div" style="position: relative">
+        <canvas id="canvas" width="800px" height="500px"/>
+        </div>
+        <script>
+var c = document.getElementById("canvas");
+c.width  = window.innerWidth;
+c.height  = window.innerHeight;
+var ctx = c.getContext("2d");
+var images = [];
+var saved_position = [];
+var picture_src = "738_strcuture_fuselage.gif";
+var pick_width = 5;
+
+function MAIN_addImageOnCanvas(ctx, src, posx, posy, id) {
+        var imageObj = new Image();
+        imageObj.src = src;
+        imageObj.onload = function() {
+            imageObj.height = imageObj.naturalHeight * window.innerWidth / imageObj.naturalWidth;
+            imageObj.width = window.innerWidth;
+            var _width = imageObj.width;
+            var _height = imageObj.height;
+            ctx.drawImage(this, posx, posy, _width, _height);
+            ctx.strokeStyle = "black";
+            ctx.rect(posx, posy, _width, _height);
+            ctx.stroke();
+            refreshExistedPoint();
+            images.push({
+            id: id,
+            x: posx,
+            y: posy,
+            width: _width,
+            height: _height
+            });
+        };
+}
+
+function addImageOnCanvas(ctx, src, posx, posy, id, _posx, _posy) {
+        ctx.clearRect(0, 0, c.width, c.height);
+        var imageObj = new Image();
+        imageObj.src = src;
+        imageObj.onload = function() {
+            imageObj.height = imageObj.naturalHeight * window.innerWidth / imageObj.naturalWidth;
+            imageObj.width = window.innerWidth;
+            var _width = imageObj.width;
+            var _height = imageObj.height;
+            ctx.drawImage(this, posx, posy, _width, _height);
+            ctx.beginPath();
+            ctx.strokeStyle = "black";
+            ctx.rect(posx, posy, _width, _height);
+            ctx.stroke();
+            if(_posx != -1 && _posy != -1){
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.rect(_posx-pick_width, _posy-pick_width, 2*pick_width, 2*pick_width);
+                ctx.stroke();
+            }
+            refreshExistedPoint();
+        };
+}
+
+MAIN_addImageOnCanvas(ctx, picture_src, 20, 20, 1);
+//addImageOnCanvas(ctx, "boobs.jpg", 50, 50, 194, 260, 2);
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return { 
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
+function drawTooltip(x, y, msg) {
+    var lastField = $("div> div:last");
+    lastField.hide();
+    var intId = (lastField && lastField.length && lastField.data("idx") + 1) || 1;
+    var fieldWrapper = $("<div class=\"fieldwrapper\" id=\"field" + intId + "\" style='border:1px solid #000;background-color:#fff;position:absolute;top:"+y+"px;left:"+x+"px;' />");
+    fieldWrapper.data("idx", intId);
+    var span = $("<span />");
+    span.html("DESC:");
+    var fName = $("<input type=\"text\" class=\"fieldname\" style='display:block;'/>");
+    var saveButton = $("<input type=\"button\" class=\"save\" value=\"SAVE\" />");
+    saveButton.click(function() {
+        $(this).parent().hide();
+        saved_position.push({
+            x: x,
+            y: y,
+            intId: intId
+        });
+        refreshMouseMove();
+        addImageOnCanvas(ctx, picture_src, 20, 20, 1, -1, -1);
+    });
+    var deleteButton = $("<input type=\"button\" class=\"delete\" value=\"DELETE\" />");
+    deleteButton.click(function() {
+        $(this).parent().remove();
+        saved_position.removeItem("intId", intId);
+        refreshMouseMove();
+        addImageOnCanvas(ctx, picture_src, 20, 20, 1, -1, -1);
+    });
+    fieldWrapper.append(span);
+    fieldWrapper.append(fName);
+    fieldWrapper.append(saveButton);
+    fieldWrapper.append(deleteButton);
+    $("#div").append(fieldWrapper);
+    //ctx.fillText(msg, x, y);
+}
+function mousedownevent(event) {
+    var coord = getMousePos(c, event), i;
+    //optimization needed
+    console.log("[" + coord.x + ", " + coord.y + "]");
+    for (i = images.length-1; i > -1; i--) {
+        if (images[i].x < coord.x && images[i].x > coord.x - images[i].width && 
+            images[i].y < coord.y && images[i].y > coord.y - images[i].height
+            ) {
+                for(j = saved_position.length-1; j >- 1; j--){
+                    if(coord.x > saved_position[j].x-pick_width && coord.y > saved_position[j].y-pick_width && coord.x < saved_position[j].x+pick_width && coord.y < saved_position[j].y+pick_width)
+                    {
+                        return;
+                    }
+                }
+            drawTooltip(coord.x, coord.y, images[i].id);
+            addImageOnCanvas(ctx, picture_src, 20, 20, 1, coord.x, coord.y);
+            break;
+        }
+    }
+}
+c.addEventListener("mousedown", mousedownevent, false);
+
+function refreshMouseMove(){
+    c.onmousemove = function(event) {
+            var coord = getMousePos(c, event);
+            console.log("[" + coord.x + ", " + coord.y + "]");
+            for(i = saved_position.length-1; i >- 1; i--) {
+                if(coord.x > saved_position[i].x-pick_width && coord.y > saved_position[i].y-pick_width && coord.x < saved_position[i].x+pick_width && coord.y < saved_position[i].y+pick_width){
+                    $("#field"+saved_position[i].intId).show();
+                }else{
+                    $("#field"+saved_position[i].intId).hide();
+                }
+            }
+       };
+   }
+function refreshExistedPoint(){
+    for(i = saved_position.length-1; i >- 1; i--) {
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.rect(saved_position[i].x-pick_width, saved_position[i].y-pick_width, 2*pick_width, 2*pick_width);
+        ctx.stroke();
+    }
+}
+
+Array.prototype.removeItem = function (key, value) {
+    if (value == undefined)
+        return;
+
+    for (var i in this) {
+        if (this[i][key] == value) {
+            this.splice(i, 1);
+        }
+    }
+};
+
+</script>
+</body>
+</html>
