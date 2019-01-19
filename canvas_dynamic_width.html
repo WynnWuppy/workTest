@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+    <title>CANVAS</title>
+    </head>
+    <body>
+        <div id="div" style="position: relative">
+        <canvas id="canvas" width="800px" height="500px" style="background: url(738_strcuture_fuselage.gif);background-repeat: no-repeat;background-size: contain;"/>
+        </div>
+        <script>
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return { 
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
+var c = document.getElementById("canvas");
+var ctx = c.getContext("2d");
+var images = [];
+var saved_position = [];
+var picture_src = "738_strcuture_fuselage.gif";
+var pick_width = 0.02 * window.innerWidth;
+var last_id = -1;
+var saved_last_position = [];
+c.width = window.innerWidth - 20;
+function test(){
+    var imageObj = new Image();
+    imageObj.src = picture_src;
+    imageObj.onload = function() {
+    c.height = imageObj.naturalHeight * c.width / imageObj.naturalWidth;
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.strokeStyle = "black";
+    ctx.rect(0, 0, c.width, c.height);
+    ctx.stroke();
+    if(saved_last_position.length > 0){
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.rect(saved_last_position[0].x * c.width -pick_width, saved_last_position[0].y * c.height -pick_width, 2*pick_width, 2*pick_width);
+        ctx.stroke();
+    }
+    images.clear();
+    images.push({
+        x: 0,
+        y: 0,
+        width: c.width,
+        height: c.height
+        });
+    refreshExistedPoint();
+    refreshMouseMove();
+    };
+}
+test();
+var width = $(window).width();
+$(window).on('resize', function(){
+   if($(this).width() != width){
+        var compare_pt = $(this).width() / width;
+        width = $(this).width();
+        c.width = width - 20;
+        test();
+        pick_width = pick_width * compare_pt;
+        $(".fieldwrapper").each(function(i) {
+            var _none = 0;
+            if($(this).css('display') == 'none'){
+                _none = 1;
+            }
+            $(this).show();
+            $(this).css({top: $(this).position().top * compare_pt, left: $(this).position().left * compare_pt}); 
+            if(_none == 1)
+            {$(this).hide();}
+        });
+   }
+});
+
+
+function addImageOnCanvas(ctx, src, _posx, _posy) {
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.rect(0, 0, c.width, c.height);
+        ctx.stroke();
+        if(_posx != -1 && _posy != -1){
+            saved_last_position.clear();
+            ctx.beginPath();
+            ctx.strokeStyle = "red";
+            ctx.rect(_posx * c.width-pick_width, _posy * c.height-pick_width, 2*pick_width, 2*pick_width);
+            ctx.stroke();
+            saved_last_position.push({
+                x: _posx,
+                y: _posy
+            });
+        }
+        refreshExistedPoint();
+}
+function refreshExistedPoint(){
+    for(i = saved_position.length-1; i >- 1; i--) {
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.rect(saved_position[i].x * c.width -pick_width, saved_position[i].y * c.height-pick_width, 2*pick_width, 2*pick_width);
+        ctx.stroke();
+    }
+}
+
+function drawTooltip(x, y) {
+    var lastField = $("div> div:last");
+    if(last_id > -1){
+         $("#field" + last_id).remove();
+         lastField = $("div> div:last");
+    }
+    var intId = (lastField && lastField.length && lastField.data("idx") + 1) || 1;
+    last_id = intId;
+    var fieldWrapper = $("<div class=\"fieldwrapper\" id=\"field" + intId + "\" style='border:1px solid #000;background-color:#eee;position:absolute;top:"+y * c.height+"px;left:"+x * c.width+"px;' />");
+    fieldWrapper.data("idx", intId);
+    var span = $("<span />");
+    span.html("DESC:");
+    var fName = $("<input type=\"text\" class=\"fieldname\" style='display:block;'/>");
+    var saveButton = $("<input type=\"button\" class=\"save\" value=\"SAVE\" />");
+    saveButton.click(function() {
+        $(this).parent().hide();
+        saved_position.push({
+            x: x,
+            y: y,
+            intId: intId
+        });
+        refreshMouseMove();
+        addImageOnCanvas(ctx, picture_src, -1, -1);
+        saved_last_position.clear();
+        last_id = -1;
+    });
+    var deleteButton = $("<input type=\"button\" class=\"delete\" value=\"DELETE\" />");
+    deleteButton.click(function() {
+        $(this).parent().remove();
+        saved_position.removeItem("intId", intId);
+        refreshMouseMove();
+        addImageOnCanvas(ctx, picture_src, -1, -1);
+        saved_last_position.clear();
+    });
+    fieldWrapper.append(span);
+    fieldWrapper.append(fName);
+    fieldWrapper.append(saveButton);
+    fieldWrapper.append(deleteButton);
+    $("#div").append(fieldWrapper);
+}
+function mousedownevent(event) {
+    var coord = getMousePos(c, event), i;
+    //optimization needed
+    console.log("[" + coord.x + ", " + coord.y + "]");
+    for (i = images.length-1; i > -1; i--) {
+        if (images[i].x < coord.x && images[i].x > coord.x - images[i].width && 
+            images[i].y < coord.y && images[i].y > coord.y - images[i].height
+            ) {
+                for(j = saved_position.length-1; j >- 1; j--){
+                    if(coord.x > saved_position[j].x * c.width - pick_width && coord.y > saved_position[j].y * c.height-pick_width && coord.x < saved_position[j].x * c.width + pick_width && coord.y < saved_position[j].y * c.height+pick_width)
+                    {
+                        return;
+                    }
+                }
+            drawTooltip(coord.x / c.width, coord.y / c.height);
+            addImageOnCanvas(ctx, picture_src, coord.x / c.width, coord.y / c.height);
+            break;
+        }
+    }
+}
+c.addEventListener("mousedown", mousedownevent, false);
+
+function refreshMouseMove(){
+    c.onmousemove = function(event) {
+            var coord = getMousePos(c, event);
+            console.log("[" + coord.x + ", " + coord.y + "]");
+            for(i = saved_position.length-1; i >- 1; i--) {
+                if(coord.x > saved_position[i].x * c.width -pick_width && coord.y > saved_position[i].y * c.height -pick_width && coord.x < saved_position[i].x * c.width +pick_width && coord.y < saved_position[i].y * c.height +pick_width){
+                    $("#field"+saved_position[i].intId).show();
+                    return;
+                }else{
+                    $("#field"+saved_position[i].intId).hide();
+                }
+            }
+            addImageOnCanvas(ctx, picture_src, -1, -1);
+            if(saved_last_position.length > 0){
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.rect(saved_last_position[0].x * c.width -pick_width, saved_last_position[0].y * c.height -pick_width, 2*pick_width, 2*pick_width);
+                ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.rect(coord.x-pick_width, coord.y-pick_width, 2*pick_width, 2*pick_width);
+            ctx.stroke();
+       };
+   }
+
+
+Array.prototype.removeItem = function (key, value) {
+    if (value == undefined)
+        return;
+
+    for (var i in this) {
+        if (this[i][key] == value) {
+            this.splice(i, 1);
+        }
+    }
+};
+Array.prototype.clear = function() {
+  while (this.length) {
+    this.pop();
+  }
+};
+
+</script>
+</body>
+</html>
