@@ -14,7 +14,7 @@
 <br>
 <canvas id="canvas" style="background: url('https://www.ttnmedia.com/wp-content/uploads/2018/01/ttn1020_Air_CI_01.jpg');background-repeat: no-repeat;background-size: contain;"></canvas>
 <script>
-  var _var = 0;
+var _var = 0;
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var canvasOffset = $("#canvas").offset();
@@ -117,9 +117,9 @@ function drawLine(line) {
   if (line.style == 2) {
     ctx.strokeStyle = "black";
     _fillstyle = "black";
-    ctx.moveTo((line.x2 - 20 / canvas.width) * canvas.width, (line.y2 + 20 / canvas.width) * canvas.width);
-    ctx.lineTo((line.x2 + 20 / canvas.width) * canvas.width, (line.y2 + 20 / canvas.width) * canvas.width);
-    ctx.lineTo(line.x2 * canvas.width, (line.y2 - 20 / canvas.width) * canvas.width); // draw up toward left (100 less than 300, so left)
+    ctx.moveTo((line.x2 - 20 / canvas.width) * canvas.width, (line.y2 + 10 / canvas.width) * canvas.width);
+    ctx.lineTo((line.x2 + 20 / canvas.width) * canvas.width, (line.y2 + 10 / canvas.width) * canvas.width);
+    ctx.lineTo(line.x2 * canvas.width, (line.y2 - 30 / canvas.width) * canvas.width); // draw up toward left (100 less than 300, so left)
     ctx.closePath(); // connect end to start
   }
   ctx.stroke();
@@ -136,7 +136,31 @@ function handleMouseDown(e) {
   var position = getMousePos(canvas, e);
   mouseX = position.x;
   mouseY = position.y;
-
+  for (var i = lines.length -1; i > -1; i--) {
+    if(lines[i].style == 0){
+    var d = Math.pow(mouseX-lines[i].x2*canvas.width,2);
+    var p = Math.pow(mouseY-lines[i].y2*canvas.width,2);
+    	if(Math.pow(mouseX-lines[i].x2*canvas.width,2)+Math.pow(mouseY-lines[i].y2*canvas.width,2) < Math.pow(20,2)){
+      	isDown = false;
+        lines.removeItem("val", lines[i].val);
+        return;
+      }
+    }
+    if(lines[i].style == 1){
+    	if(mouseX < lines[i].x2*canvas.width + 20 && mouseX > lines[i].x2*canvas.width - 20 && mouseY < lines[i].y2*canvas.width + 20 && mouseY > lines[i].y2*canvas.width - 20){
+				isDown = false;
+        lines.removeItem("val", lines[i].val);
+        return;
+      }
+    }
+    if(lines[i].style == 2){
+    if(mouseX < lines[i].x2*canvas.width + 20 && mouseX > lines[i].x2*canvas.width - 20 && mouseY < lines[i].y2*canvas.width + 10 && mouseY > lines[i].y2*canvas.width - 30){
+    		isDown = false;
+        lines.removeItem("val", lines[i].val);
+        return;
+        }
+    }
+  }
   // Put your mousedown stuff here
   startX = mouseX;
   startY = mouseY;
@@ -155,15 +179,17 @@ function handleMouseUp(e) {
     style = 2;
   }
   // Put your mouseup stuff here
-  isDown = false;
-  lines.push({
-    x1: startX / canvas.width,
-    y1: startY / canvas.width,
-    x2: mouseX / canvas.width,
-    y2: mouseY / canvas.width,
-    style: style,
-    val: ++_var
-  });
+  if(isDown){
+    isDown = false;
+    lines.push({
+      x1: startX / canvas.width,
+      y1: startY / canvas.width,
+      x2: mouseX / canvas.width,
+      y2: mouseY / canvas.width,
+      style: style,
+      val: ++_var
+    });
+  }
   drawLines(0, 0);
 }
 
@@ -203,4 +229,15 @@ $(window).on('resize', function() {
     start();
   }
 });
+Array.prototype.removeItem = function (key, value) {
+    if (value == undefined)
+        return;
+
+    for (var i in this) {
+        if (this[i][key] == value) {
+            this.splice(i, 1);
+        }
+    }
+};
+
 </script>
