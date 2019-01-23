@@ -1,6 +1,18 @@
 <head>
 <title>DRAW LINES</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+</head>
+<h4>Drag-draw lines.</h4>
+<INPUT TYPE='button' value='CLEAR' id='clearbtn' onclick='' />
+<br>
+<input type="radio" id="major" name="pstyle" value="major" checked>
+<label for="major">MAJOR</label>
+<input type="radio" id="minor" name="pstyle" value="minor">
+<label for="minor">MINOR</label>
+<input type="radio" id="dent" name="pstyle" value="dent">
+<label for="dent">DENT</label>
+<br>
+<canvas id="canvas" style="background: url('https://www.ttnmedia.com/wp-content/uploads/2018/01/ttn1020_Air_CI_01.jpg');background-repeat: no-repeat;background-size: contain;"></canvas>
 <script>
   var _var = 0;
 var canvas = document.getElementById("canvas");
@@ -192,15 +204,3 @@ $(window).on('resize', function() {
   }
 });
 </script>
-</head>
-<h4>Drag-draw lines.</h4>
-<INPUT TYPE='button' value='CLEAR' id='clearbtn' onclick='' />
-<br>
-<input type="radio" id="major" name="pstyle" value="major" checked>
-<label for="major">MAJOR</label>
-<input type="radio" id="minor" name="pstyle" value="minor">
-<label for="minor">MINOR</label>
-<input type="radio" id="dent" name="pstyle" value="dent">
-<label for="dent">DENT</label>
-<br>
-<canvas id="canvas" style="background: url('https://www.ttnmedia.com/wp-content/uploads/2018/01/ttn1020_Air_CI_01.jpg');background-repeat: no-repeat;background-size: contain;"></canvas>
