@@ -1,6 +1,197 @@
 <head>
 <title>DRAW LINES</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+<script>
+  var _var = 0;
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var canvasOffset = $("#canvas").offset();
+var offsetX = canvasOffset.left;
+var offsetY = canvasOffset.top;
+
+var startX, startY, mouseX, mouseY;
+var isDown = false;
+
+var lines = [];
+
+var imageOpacity = 0.5;
+
+var img = new Image();
+img.src = "https://www.ttnmedia.com/wp-content/uploads/2018/01/ttn1020_Air_CI_01.jpg";
+
+img.onload = start;
+
+function start() {
+  canvas.width = window.innerWidth;
+
+  canvas.height = img.height * window.innerWidth / img.width;
+  ctx.strokeStyle = "green";
+  ctx.lineWidth = 2;
+  // redraw the image
+  //drawTheImage(img, imageOpacity);
+  drawLines(0, 0);
+}
+$("#canvas").mousedown(function(e) {
+  handleMouseDown(e);
+});
+$("#canvas").mousemove(function(e) {
+  handleMouseMove(e);
+});
+$("#canvas").mouseup(function(e) {
+  handleMouseUp(e);
+});
+$("#canvas").mouseout(function(e) {
+  // handleMouseUp(e);
+});
+
+
+function drawLines(toX, toY) {
+  // clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // redraw the image
+  //drawTheImage(img, imageOpacity);
+
+  // redraw all previous lines
+  for (var i = 0; i < lines.length; i++) {
+    drawLine(lines[i]);
+  }
+  var style = 0;
+  if (document.querySelector('input[name="pstyle"]:checked').value == "major") {
+    style = 0;
+  } else if (document.querySelector('input[name="pstyle"]:checked').value == "minor") {
+    style = 1;
+  } else {
+    style = 2;
+  }
+  // draw the current line
+  if (toX != 0) {
+    drawLine({
+      x1: startX / canvas.width,
+      y1: startY / canvas.width,
+      x2: mouseX / canvas.width,
+      y2: mouseY / canvas.width,
+      style: style,
+      val: ' '
+    });
+  }
+
+}
+
+function drawTheImage(img, opacity) {
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(img, 0, 0);
+  ctx.globalAlpha = 1.00;
+}
+
+function drawLine(line) {
+  var _fillstyle = "";
+  ctx.beginPath();
+  ctx.strokeStyle = "green";
+  ctx.moveTo(line.x1 * canvas.width, line.y1 * canvas.width);
+  ctx.lineTo(line.x2 * canvas.width, line.y2 * canvas.width);
+  ctx.stroke();
+  ctx.beginPath();
+  if (line.style == 0) {
+    ctx.strokeStyle = "blue";
+    _fillstyle = "blue"
+    ctx.arc(line.x2 * canvas.width, line.y2 * canvas.width, 20 / canvas.width * canvas.width, 0, 2 * Math.PI, false);
+  }
+  if (line.style == 1) {
+    ctx.strokeStyle = "red";
+    _fillstyle = "red";
+    ctx.rect((line.x2 - 20 / canvas.width) * canvas.width, (line.y2 - 20 / canvas.width) * canvas.width, 40, 40);
+  }
+  if (line.style == 2) {
+    ctx.strokeStyle = "black";
+    _fillstyle = "black";
+    ctx.moveTo((line.x2 - 20 / canvas.width) * canvas.width, (line.y2 + 20 / canvas.width) * canvas.width);
+    ctx.lineTo((line.x2 + 20 / canvas.width) * canvas.width, (line.y2 + 20 / canvas.width) * canvas.width);
+    ctx.lineTo(line.x2 * canvas.width, (line.y2 - 20 / canvas.width) * canvas.width); // draw up toward left (100 less than 300, so left)
+    ctx.closePath(); // connect end to start
+  }
+  ctx.stroke();
+  ctx.fillStyle = _fillstyle;
+  ctx.textBaseline = 'middle';
+  ctx.font = "20px 'Montserrat'";
+  ctx.fillText(line.val, line.x2 * canvas.width - 5, line.y2 * canvas.width);
+  ctx.stroke();
+}
+
+function handleMouseDown(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  var position = getMousePos(canvas, e);
+  mouseX = position.x;
+  mouseY = position.y;
+
+  // Put your mousedown stuff here
+  startX = mouseX;
+  startY = mouseY;
+  isDown = true;
+}
+
+function handleMouseUp(e) {
+  var style = 0;
+  e.stopPropagation();
+  e.preventDefault();
+  if (document.querySelector('input[name="pstyle"]:checked').value == "major") {
+    style = 0;
+  } else if (document.querySelector('input[name="pstyle"]:checked').value == "minor") {
+    style = 1;
+  } else {
+    style = 2;
+  }
+  // Put your mouseup stuff here
+  isDown = false;
+  lines.push({
+    x1: startX / canvas.width,
+    y1: startY / canvas.width,
+    x2: mouseX / canvas.width,
+    y2: mouseY / canvas.width,
+    style: style,
+    val: ++_var
+  });
+  drawLines(0, 0);
+}
+
+function handleMouseMove(e) {
+  if (!isDown) {
+    return;
+  }
+  e.stopPropagation();
+  e.preventDefault();
+  var position = getMousePos(canvas, e);
+  mouseX = position.x;
+  mouseY = position.y;
+  // Put your mousemove stuff here
+  drawLines(mouseX, mouseY);
+
+}
+
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+$("#clearbtn").click(function() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //drawTheImage(img, imageOpacity);
+  lines = [];
+  _var = 0;
+});
+var width = $(window).width();
+var compare_pt = 1;
+$(window).on('resize', function() {
+  if ($(this).width() != width) {
+    compare_pt = $(this).width() / width;
+    width = $(this).width();
+    start();
+  }
+});
+</script>
 </head>
 <h4>Drag-draw lines.</h4>
 <INPUT TYPE='button' value='CLEAR' id='clearbtn' onclick='' />
