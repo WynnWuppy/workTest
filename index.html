@@ -2,6 +2,8 @@
 <label for="input">Try it:
 <input id="input" type="text" placeholder="Type something here..."/>
 </label>
+<label id="label">
+</label>
 <script>
 function delay(callback, ms) {
   var timer = 0;
@@ -15,6 +17,7 @@ function delay(callback, ms) {
 }
 
 $('#input').keyup(delay(function (e) {
-  console.log('Time elapsed!', this.value);
+  //console.log('Time elapsed!', this.value);
+  $('#label').html(this.value);
 }, 500));
 </script>
