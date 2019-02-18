@@ -33,7 +33,7 @@ function loadHTML(url, fun, storage, param)
 			}
 		} 
 	}; 
-
+	xhr.setRequestHeader( 'Access-Control-Allow-Origin', '*');
 	xhr.open("GET", url , true);
 	xhr.send(null); 
 
