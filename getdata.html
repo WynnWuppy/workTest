@@ -1,19 +1,7 @@
 <script>const urlParams = new URLSearchParams(window.location.search);
 const myParam = urlParams.get('url');
-  alert("url= [ "+myParam+" ]");
+  //alert("url= [ "+myParam+" ]");
 loadWholePage(myParam);
-/**
-	responseHTML
-	(c) 2007-2008 xul.fr		
-	Licence Mozilla 1.1
-*/	
-
-
-/**
-	Searches for body, extracts and return the content
-	New version contributed by users
-*/
-
 
 function getBody(content) 
 {
@@ -30,14 +18,6 @@ function getBody(content)
 
    return content.slice(x + 1, y);   
 } 
-
-/**
-	Loads a HTML page
-	Put the content of the body tag into the current page.
-	Arguments:
-		url of the other HTML page to load
-		id of the tag that has to hold the content
-*/		
 
 function loadHTML(url, fun, storage, param)
 {
@@ -58,12 +38,6 @@ function loadHTML(url, fun, storage, param)
 	xhr.send(null); 
 
 } 
-
-	/**
-		Callback
-		Assign directly a tag
-	*/		
-
 
 	function processHTML(temp, target)
 	{
