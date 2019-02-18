@@ -21,7 +21,7 @@ function getBody(content)
 
 function loadHTML(url, fun, storage, param)
 {
-	var xhr = createXHR();
+	var xhr = createCORSRequest('GET', url);
 	xhr.onreadystatechange=function()
 	{ 
 		if(xhr.readyState == 4)
@@ -33,8 +33,7 @@ function loadHTML(url, fun, storage, param)
 			}
 		} 
 	}; 
-	xhr.open("GET", url , true);
-	xhr.setRequestHeader( 'Access-Control-Allow-Origin', '*');
+	//xhr.open("GET", url , true);
 	xhr.send(null); 
 
 } 
@@ -82,27 +81,28 @@ function loadHTML(url, fun, storage, param)
 	}	
 
 
-function createXHR() 
-{
-    var request = false;
-        try {
-            request = new ActiveXObject('Msxml2.XMLHTTP');
-        }
-        catch (err2) {
-            try {
-                request = new ActiveXObject('Microsoft.XMLHTTP');
-            }
-            catch (err3) {
-		try {
-			request = new XMLHttpRequest();
-		}
-		catch (err1) 
-		{
-			request = false;
-		}
-            }
-        }
-    return request;
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+
+    // Check if the XMLHttpRequest object has a "withCredentials" property.
+    // "withCredentials" only exists on XMLHTTPRequest2 objects.
+    xhr.open(method, url, true);
+
+  } else if (typeof XDomainRequest != "undefined") {
+
+    // Otherwise, check if XDomainRequest.
+    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+
+  } else {
+
+    // Otherwise, CORS is not supported by the browser.
+    xhr = null;
+
+  }
+  return xhr;
 }
 
 </script>
