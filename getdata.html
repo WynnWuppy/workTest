@@ -1,8 +1,9 @@
 <script>const urlParams = new URLSearchParams(window.location.search);
 const myParam = urlParams.get('url');
   //alert("url= [ "+myParam+" ]");
-loadWholePage(myParam);
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
+loadWholePage(myParam);
+
 function getBody(content) 
 {
    test = content.toLowerCase();    // to eliminate case sensitivity
