@@ -2,7 +2,7 @@
 const myParam = urlParams.get('url');
   //alert("url= [ "+myParam+" ]");
 loadWholePage(myParam);
-
+const proxyurl = "https://cors-anywhere.herokuapp.com/";
 function getBody(content) 
 {
    test = content.toLowerCase();    // to eliminate case sensitivity
@@ -50,7 +50,7 @@ function loadHTML(url, fun, storage, param)
 	{
 		var y = document.getElementById("storage");
 		var x = document.getElementById("displayed");
-		loadHTML(url, processHTML, x, y);
+		loadHTML(proxyurl + url, processHTML, x, y);
 	}	
 
 
