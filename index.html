@@ -3,6 +3,7 @@
 <label for="input">Try it:
 <input id="input" type="text" placeholder="Type something here..."/>
 </label>
+<input type="button" id='btn_go' value='Go' />
 </p>
 <p>
 <label id="label"></label>
@@ -23,4 +24,9 @@ $('#input').keyup(delay(function (e) {
   //console.log('Time elapsed!', this.value);
   $('#label').html(this.value);
 }, 500));
+$('#btn_go').click(function (e) {
+  //console.log('Time elapsed!', this.value);
+  //$('#label').html(this.value);
+  location.href = $('#label').html();
+});
 </script>
